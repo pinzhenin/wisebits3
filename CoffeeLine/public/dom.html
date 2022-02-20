@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+    <title>Wisebits Test Task 1</title>
+    <script type="application/javascript">
+        const FILTER_HIDE_LINES = 'hide-lines';
+        const FILTER_DROP_LINES = 'drop-lines';
+
+        const countLinesToRender = 1000;
+        const countLinesToRemove = 200;
+
+        /**
+         * @type {number[]|null}
+         */
+        let idsToRender = null;
+        /**
+         * @type {Set<number>|null}
+         */
+        let idsToRemove = null;
+
+        /**
+         * @returns {number[]}
+         */
+        function getIdsToRender() {
+            if (!idsToRender) {
+                idsToRender = [];
+                for (let i = 0; i < countLinesToRender; i++) {
+                    if (i % 2) {
+                        idsToRender.unshift(i);
+                    } else {
+                        idsToRender.push(i);
+                    }
+                }
+            }
+            return idsToRender;
+        }
+
+        /**
+         * @returns {Set<number>}
+         */
+        function getIdsToRemove() {
+            if (!idsToRemove) {
+                idsToRemove = new Set();
+                while (idsToRemove.size < countLinesToRemove) {
+                    idsToRemove.add(Math.floor((Math.random() * countLinesToRender)));
+                }
+            }
+            return idsToRemove;
+        }
+
+        /**
+         * @param {string|null} filter
+         */
+        function renderLines(filter = null) {
+            const idsToRemove = filter ? getIdsToRemove() : null;
+            const idsToRender = filter === FILTER_DROP_LINES
+                ? getIdsToRender().filter((id) => !idsToRemove.has(id))
+                : getIdsToRender();
+
+            const useFilter = filter === FILTER_HIDE_LINES;
+            const divs = idsToRender.map(
+                (id) => `<div id="div-${id}" ${useFilter && idsToRemove.has(id) ? 'class="deleted"' : ''}>div #${id}</div>`
+            );
+
+            const bodyElement = document.getElementsByTagName('body')[0];
+            const mainElement = bodyElement.getElementsByTagName('main')[0];
+            mainElement.innerHTML = divs.join('');
+        }
+    </script>
+
+    <style>
+        header {
+            display: flex;
+            gap: 20px;
+        }
+
+        main > div {
+            padding: 3px;
+            border: 1px solid #ccc;
+            margin-bottom: 3px;
+            text-align: center;
+        }
+
+        main > div:nth-child(3n) {
+            background-color: red;
+        }
+
+        .deleted {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div>
+        <button onclick="renderLines()">Insert 1000</button>
+    </div>
+    <div>
+        <button onclick="renderLines(FILTER_HIDE_LINES)">Delete 200 (hide)</button>
+    </div>
+    <div>
+        <button onclick="renderLines(FILTER_DROP_LINES)">Delete 200 (drop)</button>
+    </div>
+</header>
+<hr />
+<main></main>
+</body>
+</html>
