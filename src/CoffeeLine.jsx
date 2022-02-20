@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useReducer } from 'react';
 import CoffeeLineApi from './api/CoffeeLineApi';
 import CoffeeCard from './CoffeeCard';
-import AddCardButton from './AddCardButton';
 import style from './CoffeeLine.module.css';
 
 const initialState = {
@@ -52,7 +51,7 @@ export default function CoffeeLine() {
   return (
     <div className={style.coffeeLine}>
       <header className={style.header}>
-        <AddCardButton onClick={getCoffeeItem} />
+        <button className={style.button} onClick={getCoffeeItem}>+</button>
         <h1 className={style.h1}>Coffee Line</h1>
         <hr />
       </header>
