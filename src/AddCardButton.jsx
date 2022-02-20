@@ -1,9 +1,16 @@
-// import {useEffect, useState} from 'react';
-// import style from './CoffeeLine.module.css';
+import PropTypes from 'prop-types';
+import style from './AddCardButton.module.css';
 
-export default function CoffeeLineMain() {
-  // const [coffeeLine, setCoffeeLine] = useState([]);
+export default function AddCardButton({ onClick }) {
   return (
-    <div>Coffee Card</div>
-  )
+    <button
+      className={style.button}
+      onClick={onClick}
+    >
+      +
+    </button>
+  );
 }
+
+AddCardButton.propTypes = { onClick: PropTypes.func };
+AddCardButton.defaultProps = { onClick: () => undefined };
