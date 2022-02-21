@@ -1,36 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import CoffeeLineApi from './api/CoffeeLineApi';
 import CoffeeCard from './CoffeeCard';
 import style from './CoffeeLine.module.css';
 
 export default function CoffeeLine() {
   const [coffeeLine, setCoffeeLine] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [clickCount, setClickCount] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [timerId, setTimerId] = useState(0);
 
-  useEffect(() => {
-    if (!loading) {
-      setLoading(true);
-      CoffeeLineApi.getCoffeeItem()
-        .then((coffeeItem) => setCoffeeLine([...coffeeLine, coffeeItem]))
-        .catch((reason) => console.debug('Something went wrong...', { reason }))
-        .finally(() => setLoading(false));
-    }
-  }, [clickCount]);
+  const restartTimer = useCallback(() => {
+    clearTimeout(timerId);
+    setTimerId(setTimeout(() => setLoading(true), 30000));
+  }, [timerId]);
 
   useEffect(() => {
-    if (timerId) {
-      clearTimeout(timerId);
+    if (loading) {
+      CoffeeLineApi.getCoffeeItem()
+        .then((item) => setCoffeeLine((line) => [...line, item]))
+        .catch((reason) => console.debug('Something went wrong...', { reason }))
+        .finally(() => setLoading(false));
+      restartTimer();
     }
-    setTimerId(setTimeout(() => setClickCount(clickCount + 1), 30000));
-    return () => clearTimeout(timerId);
-  }, [clickCount]);
+  }, [loading]);
+
+  useEffect(() => () => clearTimeout(timerId), [timerId]);
 
   return (
     <div className={style.coffeeLine}>
       <header className={style.header}>
-        <button className={style.button} onClick={() => setClickCount(clickCount + 1)}>+</button>
+        <button className={style.button} onClick={() => setLoading(true)}>+</button>
         <h1 className={style.h1}>Coffee Line</h1>
         <hr />
       </header>
