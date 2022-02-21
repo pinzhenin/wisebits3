@@ -3,15 +3,24 @@ const COFFEE_ITEM_IMAGE_URL = 'https://loremflickr.com/500/500/coffee%20bean';
 
 export default class CoffeeLineApi {
   /**
-   * @returns {Promise<*>}
+   * @returns {Promise<{
+   *   id: number,
+   *   uid: string,
+   *   intensifier: string,
+   *   origin: string,
+   *   variety: string,
+   *   blend_name: string,
+   *   notes: string
+   * }>}
    */
   static async getCoffeeItem() {
-    const coffeeItemDataPromise = fetch(COFFEE_ITEM_DATA_URL).then((response) => response.json());
-    const coffeeItemImagePromise = fetch(COFFEE_ITEM_IMAGE_URL);
+    return fetch(COFFEE_ITEM_DATA_URL).then((response) => response.json());
+  }
 
-    const coffeeItemData = await coffeeItemDataPromise;
-    const coffeeItemImage = await coffeeItemImagePromise;
-
-    return { ...coffeeItemData, image: coffeeItemImage.url };
+  /**
+   * @returns {Promise<string>}
+   */
+  static async getCoffeeImage() {
+    return fetch(COFFEE_ITEM_IMAGE_URL).then((response) => response.url);
   }
 }

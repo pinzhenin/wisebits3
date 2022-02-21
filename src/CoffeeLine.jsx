@@ -34,7 +34,7 @@ export default function CoffeeLine() {
       </header>
 
       <main className={style.main}>
-        {coffeeLine.map((coffeeItem, index) => <CoffeeCard coffeeItem={coffeeItem} key={index} />)}
+        {coffeeLine.map((coffeeItem, index) => <CoffeeCard coffeeItem={coffeeItem} key={index} />) /* use index because of duplicates */}
         {loading && <CoffeeCard />}
       </main>
 
