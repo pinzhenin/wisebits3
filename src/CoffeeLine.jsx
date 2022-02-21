@@ -1,57 +1,36 @@
-import { useEffect, useMemo, useReducer } from 'react';
+import { useEffect, useState } from 'react';
 import CoffeeLineApi from './api/CoffeeLineApi';
 import CoffeeCard from './CoffeeCard';
 import style from './CoffeeLine.module.css';
 
-const initialState = {
-  coffeeLine: [],
-  loading: false,
-  timerId: null,
-};
-
-function reducer(state, action) {
-  switch (action.type) {
-    case 'addCoffeeItem':
-      return { ...state, coffeeLine: [...state.coffeeLine, action.payload] };
-    case 'setLoading':
-      return { ...state, loading: action.payload };
-    case 'setTimerId':
-      return { ...state, timerId: action.payload };
-    default:
-      throw new Error();
-  }
-}
-
 export default function CoffeeLine() {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const { coffeeLine, loading, timerId } = state;
-
-  const getCoffeeItem = useMemo(() => () => {
-      if (!loading) {
-        dispatch({ type: 'setLoading', payload: true });
-        CoffeeLineApi.getCoffeeItem()
-          .then((coffeeItem) => dispatch({ type: 'addCoffeeItem', payload: coffeeItem }))
-          .catch((reason) => console.debug('Something went wrong...', { reason }))
-          .finally(() => dispatch({ type: 'setLoading', payload: false }));
-      }
-    }, []
-  );
-
-  useEffect(() => getCoffeeItem(), []);
-
-  useEffect(() => () => clearTimeout(timerId), []);
+  const [coffeeLine, setCoffeeLine] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+  const [timerId, setTimerId] = useState(0);
 
   useEffect(() => {
-    if (loading) {
-      clearTimeout(timerId);
-      dispatch({ type: 'setTimerId', payload: setTimeout(getCoffeeItem, 30000) });
+    if (!loading) {
+      setLoading(true);
+      CoffeeLineApi.getCoffeeItem()
+        .then((coffeeItem) => setCoffeeLine([...coffeeLine, coffeeItem]))
+        .catch((reason) => console.debug('Something went wrong...', { reason }))
+        .finally(() => setLoading(false));
     }
-  }, [loading]);
+  }, [clickCount]);
+
+  useEffect(() => {
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+    setTimerId(setTimeout(() => setClickCount(clickCount + 1), 30000));
+    return () => clearTimeout(timerId);
+  }, [clickCount]);
 
   return (
     <div className={style.coffeeLine}>
       <header className={style.header}>
-        <button className={style.button} onClick={getCoffeeItem}>+</button>
+        <button className={style.button} onClick={() => setClickCount(clickCount + 1)}>+</button>
         <h1 className={style.h1}>Coffee Line</h1>
         <hr />
       </header>
