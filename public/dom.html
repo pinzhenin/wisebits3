@@ -52,19 +52,25 @@
          * @param {string|null} filter
          */
         function renderLines(filter = null) {
-            const idsToRemove = filter ? getIdsToRemove() : null;
-            const idsToRender = filter === FILTER_DROP_LINES
-                ? getIdsToRender().filter((id) => !idsToRemove.has(id))
-                : getIdsToRender();
+            const useFilterDropLines = filter === FILTER_DROP_LINES;
+            const useFilterHideLines = filter === FILTER_HIDE_LINES;
+            const useFilter = useFilterDropLines || useFilterHideLines;
 
-            const useFilter = filter === FILTER_HIDE_LINES;
-            const divs = idsToRender.map(
-                (id) => `<div id="div-${id}" ${useFilter && idsToRemove.has(id) ? 'class="deleted"' : ''}>div #${id}</div>`
-            );
+            const idsToRender = getIdsToRender();
+            const idsToRemove = useFilter ? getIdsToRemove() : null;
+
+            let html = '';
+            idsToRender.forEach((id) => {
+                if (!useFilter || !idsToRemove.has(id)) {
+                    html = `${html}<div id="div-${id}">div #${id}</div>`;
+                } else if (useFilterHideLines) {
+                    html = `${html}<div id="div-${id}" class="deleted">div #${id}</div>`;
+                }
+            });
 
             const bodyElement = document.getElementsByTagName('body')[0];
             const mainElement = bodyElement.getElementsByTagName('main')[0];
-            mainElement.innerHTML = divs.join('');
+            mainElement.innerHTML = html;
         }
     </script>
 
@@ -82,7 +88,7 @@
         }
 
         main > div:nth-child(3n) {
-            background-color: red;
+            color: red;
         }
 
         .deleted {
